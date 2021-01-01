@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LRU Cache API</title>
+    <style>
+        body{
+            font-size: 16px;
+            line-height: 1.5;
+            font-family: “Helvetica Neue”, Helvetica, Arial, sans-serif;
+            text-align: center;
+            width: 60%;
+            margin: 0 auto;
+            background-color: #36C9C6;
+        }
+
+        input{
+            border: none;
+            border-radius: 5%;
+            height: 30px;
+            width: 150px;
+        }
+
+        button{
+            background-color: #ED6A5A;
+            border:none;
+            height: 40px;
+            width: 100px;
+            font-weight: bold;
+        }
+
+        .formArea{
+            margin-top: 10px;
+        }
+
+        .inputArea {
+            margin: 10px;
+        }
+
+        .inputArea label{
+            width: 60px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cache API</h1>
+
+    <div>
+        <h2>API Description</h2>
+        <p>
+            Hi Everyone, I wanted to deploy something on Heroku, so I created an API. This is a basic cacheing system. 
+            Users may store data on it with a username, key and value. It is utilizing a LRU cache, and I might add the 
+            ability to give users the option to switch to a MRU cache. Currently, it has a hard limit of 500 keys. Once 
+            a user exceeds this value, the caching algorithm kicks in. 
+            <br><br>
+            This API has a get and add api. Users may add via POST where they must provide a username, a key and a value 
+            for whatever they would like to cache. For example, users must pass the following date to a POST in order to 
+            save their data user=user&key=key&value=value. User may access their date via GET where they must provide a 
+            username and key. For example, users must pass the following date to a GET in order to fetch their data 
+            user=user&key=key. 
+        </p>
+        <h3>Minor Disclaimer</h3>
+        <p>
+            This was made purely for funzies, and is not a scalable and or highly available system nor is it secure. 
+            Please do not store any important or confidential information on it. I do not persist any of the data, and 
+            the data wipes clean every time the server goes to sleep and that happens very often, so I am not responsible
+            for any loss of data. I so log if someone retrieves data from the system and that's just for fun. I never have
+            any access to anyones data. Finally, have fun and keep on coding!!!! 
+        </p>
+    </div>
+    
+    <div class="formArea">
+        <h2>Add to Cache</h2>
+        <form action="javascript:void(0);" id="addForm">
+            <div class="inputArea">
+                <label for="user-add" id="user-label">User</label> 
+                <input type="text" name="user" id="user-add">
+            </div>
+            <div class="inputArea">
+                <label for="key-add" id="key-lable">Key</label> 
+                <input type="text" name="key" id="key-add">
+            </div class="inputArea">
+            <div class="inputArea">
+                <label for="value-add" id="value-lable">Value</label> 
+            <input type="text" name="value" id="value-add">
+            </div>
+            <p id="added"></p>
+            <button id="addButton">Add To Cache</button>
+        </form>
+    </div>
+
+    <div class="formArea">
+        <h2>Get from Cache</h2>
+        <form action="javascript:void(0);" id="getForm">
+            <div class="inputArea">
+                <label for="user-get" id="user-label">User</label> 
+                <input type="text" name="user" id="user-get">
+            </div>
+            <div class="inputArea">
+                <label for="key-get" id="key-lable">Key</label> 
+                <input type="text" name="key" id="key-get">
+            </div>
+            <p id="get"></p>
+            <button id="getButton">Get</button>
+        </form>
+    </div>
+
+    <script>
+        const serializeForm = (form) =>
+        {
+            var serialized = {};
+            for(var i = 0; i < form.elements.length; i++)
+            {
+                var field = form.elements[i];
+                if (!field.name || field.disabled || field.type === 'file' || field.type === 'reset' || field.type === 'submit' || field.type === 'button') continue;
+                serialized[field.name] = field.value
+            }
+            return serialized
+        }
+
+        let addForm = document.querySelector("#addForm");
+        let getForm = document.querySelector("#getForm");
+        let addButton = document.querySelector("#addButton");
+        let getButton = document.querySelector("#getButton");
+        let added = document.querySelector("#added");
+        let get = document.querySelector("#get");
+        
+        addButton.addEventListener("click", () => {
+            let data = serializeForm(addForm);
+            let xhr = new XMLHttpRequest(); 
+            
+            xhr.open('POST',  "/cache/add", true); 
+        
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+         
+            xhr.onload = function () { 
+                if(this.status === 200){ 
+                    let response = JSON.parse(this.responseText);
+                    let text = "user: " + response.user + " key: " + response.key + " value: " + response.value;
+                    added.innerHTML = "Added to " + text;
+                } 
+                else { 
+                    console.log(this);
+                } 
+            } 
+            var params = Object.keys(data).map(
+	            function(k){ return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]) }
+	        ).join('&');
+            xhr.send(params); 
+        })
+
+        getButton.addEventListener("click", () => {
+            let data = serializeForm(getForm);
+            let xhr = new XMLHttpRequest(); 
+            var params = Object.keys(data).map(
+	            function(k){ return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]) }
+            ).join('&');
+            xhr.open('GET',  "/cache/get?" + params, true); 
+        
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+         
+            xhr.onload = function () { 
+                if(this.status === 200){ 
+                    let response = JSON.parse(this.responseText);
+                    let text = "user: " + response.user + " key: " + response.key + " value: " + response.value;
+                    get.innerHTML = "Feched to " + text;
+                } 
+                else { 
+                    console.log(this);
+                } 
+            } 
+            xhr.send(); 
+        })
+
+        
+    </script>
+    
+</body>
+</html>
