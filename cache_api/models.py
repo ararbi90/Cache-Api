@@ -4,3 +4,4 @@ from django.db import models
 class Log(models.Model):
     user_name = models.CharField(max_length=200)
     pub_date = models.DateTimeField('date published')
+    user_method = models.CharField(max_length=200, default="na")
