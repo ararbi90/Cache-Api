@@ -1,7 +1,9 @@
 """
+Module contains node used by caching algorithm
 """
 class Node:
     """
+    Node used by caching algorithm
     """
     def __init__(self, key):
         """

@@ -165,7 +165,7 @@
                 if(this.status === 200){ 
                     let response = JSON.parse(this.responseText);
                     let text = "user: " + response.user + " key: " + response.key + " value: " + response.value;
-                    get.innerHTML = "Feched to " + text;
+                    get.innerHTML = "Feched " + text;
                 } 
                 else { 
                     console.log(this);
