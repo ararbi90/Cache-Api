@@ -5,9 +5,9 @@ from .cache import Cache
 from .cache_factory import CacheFactory
 
 class CacheSet:
-     """
-     Class used to store cache based on user
-     """
+    """
+    Class used to store cache based on user
+    """
     def __init__(self, size: int):
         """
         @param size of each cache
